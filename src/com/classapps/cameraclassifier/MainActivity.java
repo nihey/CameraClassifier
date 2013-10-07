@@ -1,6 +1,7 @@
 package com.classapps.cameraclassifier;
 
 import android.os.Bundle;
+import android.os.Environment;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
@@ -10,6 +11,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -22,16 +24,23 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
 	
+	public final static String CLASS_CHOSEN_DIR = "CL4SS_CH0SEN_DIR";
+	
 	/**
 	 *  CheckBox para controle do service (iniciar ou parar service)
 	 */
 	
 	private CheckBox box;
 	private Button setdir;
+	private String mDir = Environment.getExternalStorageDirectory().getName();
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		
 		super.onCreate(savedInstanceState);
+		
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		
 		setContentView(R.layout.activity_main);
 		
 		Log.d("MainActivity", "OnCreate()");
@@ -51,8 +60,10 @@ public class MainActivity extends Activity {
 				
 				if(isChecked) {
 					
-					// Inicia service
-					startService(new Intent(MainActivity.this, ClassifierService.class));
+					Intent intent = new Intent(MainActivity.this, ClassifierService.class);
+					intent.putExtra(CLASS_CHOSEN_DIR, mDir);
+					
+					startService(intent);
 				}
 				else {
 					
@@ -72,17 +83,10 @@ public class MainActivity extends Activity {
 			}
 		});
 	}
-
-	@Override
-	protected void onPause() {
-		// TODO Auto-generated method stub
-		super.onPause();
-		
-		finish();
-	}
 	
 	private boolean isRunning() {
-	    ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+	    
+		ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
 	    for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
 	        if (ClassifierService.class.getName().equals(service.service.getClassName())) {
 	            return true;
@@ -93,13 +97,16 @@ public class MainActivity extends Activity {
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		
 		super.onActivityResult(requestCode, resultCode, data);
 		
 		Toast.makeText(this, "Dir: " + data.getStringExtra(DirectoryPicker.CHOSEN_DIRECTORY), Toast.LENGTH_LONG).show();
+		mDir = data.getStringExtra(DirectoryPicker.CHOSEN_DIRECTORY);
 	}
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
+		
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.activity_main, menu);
 		return true;
