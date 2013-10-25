@@ -1,5 +1,7 @@
 package com.classapps.cameraclassifier;
 
+import org.opencv.android.OpenCVLoader;
+
 import android.os.Bundle;
 import android.os.Environment;
 import android.app.Activity;
@@ -44,6 +46,9 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 		
 		Log.d("MainActivity", "OnCreate()");
+		
+		// Carregamento dos métodos nativos do OpenCV
+		OpenCVLoader.initDebug();
 		
 		box = (CheckBox) findViewById(R.id.checkBox);
 		

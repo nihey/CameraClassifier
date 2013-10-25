@@ -53,7 +53,7 @@
 //					// mascara para realizar AND em cada canal
 //					char Ra = (char) (((int)(Math.pow(2,RGBb[0]))-1) << dR);
 //					char Ga = (char) (((int)(Math.pow(2,RGBb[1]))-1) << dG);
-//					char Ba = (char) (((int)(pMath.ow(2,RGBb[2]))-1) << dB);
+//					char Ba = (char) (((int)(Math.pow(2,RGBb[2]))-1) << dB);
 //					
 //					
 //				}
@@ -83,7 +83,7 @@
 //				
 //				(*it2) = newcolor;
 //				
-//				if (newcolor > 255) cout << "color overflow: " << newcolor << endl;
+//				// if (newcolor > 255) cout << "color overflow: " << newcolor << endl;
 //				
 //				// conta quantas cores unicas foram obtidas
 //				if (freq[newcolor] == 0) unique++;
@@ -146,7 +146,7 @@
 //		 *	- histograma ja alocado, com tamanho de duas vezes a quantidade de cor
 //		 *	- quantidade de cores usadas na imagem 
 //		 * No histograma, de 0 até (nColor -1) = Borda, de nColor até (2*nColor -1) = Interior */
-//		public static void BIC(Mat I, Mat features, int nColor) 
+//		public static void Hist(Mat I, Mat features, int nColor) 
 //		{
 //			Size imgSize = new Size(I.width(), I.height());
 //
