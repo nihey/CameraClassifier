@@ -1,6 +1,8 @@
 package com.classapps.cameraclassifier;
 
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
@@ -14,7 +16,7 @@ public class ClassifierService extends Service {
 
 	FileObserver mObserver;
 	
-	private String mPWD = null; 
+	public static String mPWD = null; 
 
 	private String mLastFile = "";
 	
@@ -30,7 +32,7 @@ public class ClassifierService extends Service {
 			@Override
 			public void onEvent(int event, String file) {
 				
-				if((!file.equals(".probe")) && (!file.equals(mLastFile))){ // check if its a "create" and not equal to .probe because thats created every time camera is launched
+				if((!file.equals("Quantic.jpg")) && (!file.equals(".probe")) && (!file.equals(mLastFile))){ // check if its a "create" and not equal to .probe because thats created every time camera is launched
 
 					Log.i("Event: ", file + " Happened");
 					
@@ -45,19 +47,32 @@ public class ClassifierService extends Service {
 						Log.d("TEST", "Failed to load image");
 					}
 					
-					// Inicializa matriz de nuances de cinza
-					Mat src_gray = new Mat();
+					Imgproc.resize(src, src, new Size(600, 480));
 					
-					// Converte cores
-					Imgproc.cvtColor(src, src_gray, Imgproc.COLOR_BGR2GRAY);
+					Mat feat = new Mat(1, 64, CvType.CV_8U);
 					
-					// Cria matriz para armazenar imagem binarizada
-					Mat dst = new Mat(src_gray.size(), src_gray.type());
+					BIC.Hist(src, feat, 32);
 					
-					// Binariza dst
-					Imgproc.Canny(src_gray, dst, 10, 100);
+					Log.d("Histogram", "is Done");
 					
-					Highgui.imwrite(mPWD + "/" + file, dst);
+					for(int i = 0; i < 64; i++) {
+						
+						Log.d("Feature " + i, "0: " + feat.get(0, i)[0]);
+					}
+					
+//					// Inicializa matriz de nuances de cinza
+//					Mat src_gray = new Mat();
+//					
+//					// Converte cores
+//					Imgproc.cvtColor(src, src_gray, Imgproc.COLOR_BGR2GRAY);
+//					
+//					// Cria matriz para armazenar imagem binarizada
+//					Mat dst = new Mat(src_gray.size(), src_gray.type());
+//					
+//					// Binariza dst
+//					Imgproc.Canny(src_gray, dst, 10, 100);
+//					
+//					Highgui.imwrite(mPWD + "/" + file, dst);
 				}
 			}
 		};
