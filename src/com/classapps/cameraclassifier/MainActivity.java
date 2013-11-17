@@ -89,6 +89,7 @@ public class MainActivity extends Activity {
 		});
 	}
 	
+	// Indica se o service está rodando
 	private boolean isRunning() {
 	    
 		ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
@@ -100,6 +101,7 @@ public class MainActivity extends Activity {
 	    return false;
 	}
 	
+	// Chamado quando recebe a resposta do DirectoryPicker
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		
