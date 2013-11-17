@@ -1,6 +1,13 @@
 package com.classapps.cameraclassifier;
 
+import com.classapps.cameraclassifier.ClassifierService.LocalBinder;
 import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.IBinder;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -12,7 +19,11 @@ import android.widget.TextView;
  */
 
 public class ConfirmActivity extends Activity {
-
+	
+	private ClassifierService mService;
+	
+	private boolean mBound = false;
+	
 	private TextView mTextView;
 	
 	private Button mYesButton;
@@ -35,9 +46,12 @@ public class ConfirmActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				
-				// Archive manipulation here
+				if(mBound) {
 				
-				finish();
+					// Archive manipulation here
+					
+					finish();
+				}
 			}
 		});
 		
@@ -46,11 +60,40 @@ public class ConfirmActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				
-				// Call Suggest activity here
-				
-				finish();
+				if(mBound) {
+
+					// Call Suggest activity here
+					
+					finish();
+				}
 			}
 		});
 	};
+	
+	@Override
+	protected void onResume() {
 
+		super.onResume();
+		
+		bindService(new Intent(this, ClassifierService.class), mConnection, Context.BIND_AUTO_CREATE);
+	}
+	
+	/** Define callbacks para a ligação Activity -> Service */
+    private ServiceConnection mConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+
+            LocalBinder binder = (LocalBinder) service;
+            mService = binder.getService();
+            mBound = true;
+            
+            Log.d("ChatActvitity", "We're bound together forever");
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBound = false;
+        }
+    };
 }

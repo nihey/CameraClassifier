@@ -13,6 +13,7 @@ import org.opencv.imgproc.Imgproc;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Binder;
 import android.os.FileObserver;
 import android.os.IBinder;
 import android.util.Log;
@@ -20,6 +21,8 @@ import android.util.Log;
 public class ClassifierService extends Service {
 
 	public static final String EXTRA_FILE_NAME = "camclass_filename";
+	
+	private final IBinder mBinder = new LocalBinder();
 	
 	FileObserver mObserver;
 	
@@ -136,7 +139,17 @@ public class ClassifierService extends Service {
 	@Override
 	public IBinder onBind(Intent intent) {
 		
-		return null;
+		return mBinder;
 	}
+	
+    /**
+     * Class used for the client Binder.  Because we know this service always
+     * runs in the same process as its clients, we don't need to deal with IPC.
+     */
+    public class LocalBinder extends Binder {
+    	ClassifierService getService() {
 
+            return ClassifierService.this;
+        }
+    }
 }
