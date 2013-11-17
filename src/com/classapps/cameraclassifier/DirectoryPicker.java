@@ -119,5 +119,11 @@ public class DirectoryPicker extends ListActivity {
 		
 		return names;
 	}
+	
+	@Override
+	public void onBackPressed() {
+		
+		returnDir(Environment.getExternalStorageDirectory().getAbsolutePath());
+	}
 }
 
