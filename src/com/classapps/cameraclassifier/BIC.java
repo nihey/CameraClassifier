@@ -1,9 +1,10 @@
 package com.classapps.cameraclassifier;
 
+import java.util.ArrayList;
+
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
-import org.opencv.highgui.Highgui;
 
 import android.util.Log;
 
@@ -134,7 +135,6 @@ public class BIC {
 			
 			for (i = 0; i < nColor ; i++) {
 				
-				//sum += hist[i]*hist[i];
 				sum += hist[i];
 				max = (hist[i] > max) ? hist[i] : max;
 			}
@@ -165,7 +165,7 @@ public class BIC {
 		 *	- histograma ja alocado, com tamanho de duas vezes a quantidade de cor
 		 *	- quantidade de cores usadas na imagem 
 		 * No histograma, de 0 até (nColor -1) = Borda, de nColor até (2*nColor -1) = Interior */
-		public static void Hist(Mat I, Mat features, int nColor) {
+		public static void Hist(Mat I, ArrayList<Float> features, int nColor) {
 			
 			Size imgSize = new Size(I.width(), I.height());
 
@@ -173,54 +173,54 @@ public class BIC {
 
 			Log.i("Unique Colors", "" + QuantizationMSB(I, Q));
 			
-			Highgui.imwrite(ClassifierService.mPWD + "/Quantic.jpg", Q);
+//			Highgui.imwrite(ClassifierService.mPWD + "/Quantic.jpg", Q);
 			
-//			int i, j, cat;
-//			long[] hist = new long[2*nColor];
-//			float[] norm = new float[2*nColor];
-//
-//			for (i = 0; i < 2*nColor; i++) {
-//				
-//				hist[i] = 0;    // Initialize all elements to zero.
-//				norm[i] = 0.0f;  // Initialize all elements to zero.
-//			}
-//			
-//			for (i = 0; i < imgSize.height ; i++) {
-//				
-//				for (j = 0; j <  imgSize.width ; j++) {
-//					
-//					double []aux = Q.get(i,j);
-//					
-//					cat = (int) aux[0];
-//					//Log.i("Catz: ", "" + cat);
-//					Log.i("Aux[0]: ", "" + aux[0]);
-//					
-//					if (i > 0 && j > 0 && j < imgSize.width -1 && i < imgSize.height -1) {
-//						
-//						if ((Q.get(i,j-1) == aux) && 
-//							(Q.get(i,j+1) == aux) && 
-//							(Q.get(i-1,j) == aux) && 
-//							(Q.get(i+1,j) == aux)) 
-//						{
-//							hist[cat]++;
-//						}
-//						  else {
-//							  
-//							hist[cat+nColor]++;
-//						  }
-//					}
-//					  else {
-//						  
-//						hist[cat+nColor]++;
-//					  }
-//				}
-//			}
-//			
-//			NormalizeHist(hist, norm, 2*nColor, 255);
-//			
-//			for (j = 0; j < 2*nColor ; j ++) {
-//				
-//				features.put(0, j, norm[j]);
-//			}
+			int i, j, cat;
+			long[] hist = new long[2*nColor];
+			float[] norm = new float[2*nColor];
+
+			for (i = 0; i < 2*nColor; i++) {
+				
+				hist[i] = 0;    // Initialize all elements to zero.
+				norm[i] = 0.0f;  // Initialize all elements to zero.
+			}
+			
+			for (i = 0; i < imgSize.height ; i++) {
+				
+				for (j = 0; j <  imgSize.width ; j++) {
+					
+					double []aux = Q.get(i,j);
+					
+					cat = (int) (aux[0]);
+					//Log.i("Catz: ", "" + cat);
+					//Log.i("Aux[0]: ", "" + aux[0]);
+					
+					if (i > 0 && j > 0 && j < imgSize.width -1 && i < imgSize.height -1) {
+						
+						if ((Q.get(i,j-1) == aux) && 
+							(Q.get(i,j+1) == aux) && 
+							(Q.get(i-1,j) == aux) && 
+							(Q.get(i+1,j) == aux)) {
+							
+							hist[cat]++;
+						}
+						else {
+							  
+							hist[cat+nColor]++;
+						}
+					}
+					else {
+						  
+						hist[cat+nColor]++;
+					}
+				}
+			}
+			
+			NormalizeHist(hist, norm, 2*nColor, 255);
+			
+			for (j = 0; j < 2*nColor ; j ++) {
+				
+				features.add(norm[j]);
+			}
 		}
 }

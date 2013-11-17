@@ -28,7 +28,7 @@ public class ConfirmActivity extends Activity {
 		mYesButton = (Button) findViewById(R.id.yesbutton);
 		mNoButton = (Button) findViewById(R.id.nobutton);
 		
-		mTextView.setText("Is this photo from category\n \"Australian Nature\"?");
+		mTextView.setText("Is the photo " + getIntent().getStringExtra(ClassifierService.EXTRA_FILE_NAME) + " from category\n 'Coding'?");
 		
 		mYesButton.setOnClickListener(new OnClickListener() {
 			

@@ -1,12 +1,17 @@
 package com.classapps.cameraclassifier;
 
-import org.opencv.core.CvType;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.FileObserver;
 import android.os.IBinder;
@@ -14,14 +19,45 @@ import android.util.Log;
 
 public class ClassifierService extends Service {
 
+	public static final String EXTRA_FILE_NAME = "camclass_filename";
+	
 	FileObserver mObserver;
 	
 	public static String mPWD = null; 
 
-	private String mLastFile = "";
-	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
+		
+		ObjectInputStream ois = null;
+		
+		try {
+
+		    ois = new ObjectInputStream(openFileInput("features"));
+		    
+		    float val = ois.readFloat();
+		    
+		    while(val != -1) {
+				
+				Log.d("Feature ", "0: " + val);
+				val = ois.readFloat();
+			}
+		    ois.close();
+		    
+		} 
+		catch (Exception ex) {
+
+			ex.printStackTrace();
+		}
+		finally {
+			
+			try {
+				
+				ois.close();			
+			} catch (IOException e) {
+
+				e.printStackTrace();
+			}
+		}
 		
 		mPWD =  (String) intent.getExtras().get(MainActivity.CLASS_CHOSEN_DIR);
 		
@@ -32,11 +68,9 @@ public class ClassifierService extends Service {
 			@Override
 			public void onEvent(int event, String file) {
 				
-				if((!file.equals("Quantic.jpg")) && (!file.equals(".probe")) && (!file.equals(mLastFile))){ // check if its a "create" and not equal to .probe because thats created every time camera is launched
+				if((!file.equals(".probe")) && (!file.equals("features"))){ // check if its a "create" and not equal to .probe because thats created every time camera is launched
 
 					Log.i("Event: ", file + " Happened");
-					
-					mLastFile = file;
 					
 					// Mat
 					Mat src = Highgui.imread(mPWD + "/" + file);
@@ -49,30 +83,30 @@ public class ClassifierService extends Service {
 					
 					Imgproc.resize(src, src, new Size(600, 480));
 					
-					Mat feat = new Mat(1, 64, CvType.CV_8U);
+					ArrayList<Float> feat = new ArrayList<Float>();
 					
 					BIC.Hist(src, feat, 32);
 					
 					Log.d("Histogram", "is Done");
 					
-					for(int i = 0; i < 64; i++) {
-						
-						Log.d("Feature " + i, "0: " + feat.get(0, i)[0]);
+					try {
+					    
+					    ObjectOutputStream oos = new ObjectOutputStream(openFileOutput("features", Context.MODE_APPEND));
+					    for(int i = 0; i < 64; i++) {
+							
+							Log.d("Feature " + i, "0: " + feat.get(i));
+							oos.writeFloat(feat.get(i));
+						}
+					    oos.close();
+					} 
+					catch (Exception ex) {
+
+						ex.printStackTrace();
 					}
-					
-//					// Inicializa matriz de nuances de cinza
-//					Mat src_gray = new Mat();
-//					
-//					// Converte cores
-//					Imgproc.cvtColor(src, src_gray, Imgproc.COLOR_BGR2GRAY);
-//					
-//					// Cria matriz para armazenar imagem binarizada
-//					Mat dst = new Mat(src_gray.size(), src_gray.type());
-//					
-//					// Binariza dst
-//					Imgproc.Canny(src_gray, dst, 10, 100);
-//					
-//					Highgui.imwrite(mPWD + "/" + file, dst);
+					Intent i = new Intent(getApplicationContext(), ConfirmActivity.class);
+					i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+					i.putExtra(EXTRA_FILE_NAME, file);
+					getApplication().startActivity(i);
 				}
 			}
 		};
