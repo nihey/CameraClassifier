@@ -29,17 +29,23 @@ public class ConfirmActivity extends Activity {
 	private Button mYesButton;
 	private Button mNoButton;
 	
+	private String mFile;
+	private float mFeatures[];
+	
 	protected void onCreate(android.os.Bundle savedInstanceState) {
 		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.confirm_screen);
+		
+		mFile = getIntent().getStringExtra(ClassifierService.EXTRA_FILE_NAME);
+		mFeatures = getIntent().getFloatArrayExtra(ClassifierService.EXTRA_FEATURES);
 		
 		mTextView = (TextView) findViewById(R.id.confirmtextview);
 		
 		mYesButton = (Button) findViewById(R.id.yesbutton);
 		mNoButton = (Button) findViewById(R.id.nobutton);
 		
-		mTextView.setText("Is the photo " + getIntent().getStringExtra(ClassifierService.EXTRA_FILE_NAME) + " from category\n 'Coding'?");
+		mTextView.setText("Is the photo " + mFile + " from category\n '0'?");
 		
 		mYesButton.setOnClickListener(new OnClickListener() {
 			
@@ -48,7 +54,7 @@ public class ConfirmActivity extends Activity {
 				
 				if(mBound) {
 				
-					// Archive manipulation here
+					mService.addElement(mFile, mFeatures, 0);
 					
 					finish();
 				}
@@ -62,7 +68,7 @@ public class ConfirmActivity extends Activity {
 				
 				if(mBound) {
 
-					// Call Suggest activity here
+					mService.addElement(mFile, mFeatures, 1);
 					
 					finish();
 				}
@@ -74,8 +80,14 @@ public class ConfirmActivity extends Activity {
 	protected void onResume() {
 
 		super.onResume();
-		
 		bindService(new Intent(this, ClassifierService.class), mConnection, Context.BIND_AUTO_CREATE);
+	}
+	
+	@Override
+	protected void onDestroy() {
+
+		super.onDestroy();
+		unbindService(mConnection);
 	}
 	
 	/** Define callbacks para a ligação Activity -> Service */
