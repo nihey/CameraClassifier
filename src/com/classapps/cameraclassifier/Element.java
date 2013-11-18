@@ -1,18 +1,16 @@
 package com.classapps.cameraclassifier;
 
-import java.util.ArrayList;
-
 public class Element {
 
 	String mFile;
-	ArrayList<Float> mFeatures;
+	float mFeatures[];
 	int mClass;
 	
-	 public Element(String pFile, ArrayList<Float> pFeatures, int pClass) {
+	 public Element(String pFile, float pFeatures[], int pClass) {
 
 	 	mFile = pFile;
 	 	mFeatures = pFeatures;
-	 	pClass = mClass;
+	 	mClass = pClass;
 	}
 	 
 	public String getFile() {
@@ -20,7 +18,7 @@ public class Element {
 		return mFile;
 	}
 	
-	public ArrayList<Float> getFeatures() {
+	public float[] getFeatures() {
 		
 		return mFeatures;
 	}

@@ -21,8 +21,11 @@ import android.util.Log;
 public class ClassifierService extends Service {
 
 	public static final String EXTRA_FILE_NAME = "camclass_filename";
+	public static final String EXTRA_FEATURES = "camclass_features";
 	
 	private final IBinder mBinder = new LocalBinder();
+	
+	private ArrayList<Element> mElements = new ArrayList<Element>();
 	
 	FileObserver mObserver;
 	
@@ -86,30 +89,25 @@ public class ClassifierService extends Service {
 					
 					Imgproc.resize(src, src, new Size(600, 480));
 					
-					ArrayList<Float> feat = new ArrayList<Float>();
+					float feat[] = new float[64];
 					
 					BIC.Hist(src, feat, 32);
 					
 					Log.d("Histogram", "is Done");
 					
-					try {
-					    
-					    ObjectOutputStream oos = new ObjectOutputStream(openFileOutput("features", Context.MODE_APPEND));
-					    for(int i = 0; i < 64; i++) {
-							
-							Log.d("Feature " + i, "0: " + feat.get(i));
-							oos.writeFloat(feat.get(i));
-						}
-					    oos.close();
-					} 
-					catch (Exception ex) {
-
-						ex.printStackTrace();
+					for(int i = 0; i < mElements.size(); i++) {
+						
+						Log.i("ClassifierService:", "Element " + i + ": " + mElements.get(i).getElementClass());
 					}
-					Intent i = new Intent(getApplicationContext(), ConfirmActivity.class);
-					i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-					i.putExtra(EXTRA_FILE_NAME, file);
-					getApplication().startActivity(i);
+					
+					if(mElements.size() < 5) {
+					
+						Intent i = new Intent(getApplicationContext(), ConfirmActivity.class);
+						i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+						i.putExtra(EXTRA_FILE_NAME, file);
+						i.putExtra(EXTRA_FEATURES, feat);
+						getApplication().startActivity(i);
+					}
 				}
 			}
 		};
@@ -140,6 +138,11 @@ public class ClassifierService extends Service {
 	public IBinder onBind(Intent intent) {
 		
 		return mBinder;
+	}
+	
+	public void addElement(String pFile, float pFeatures[], int pClass) {
+		
+		mElements.add(new Element(pFile, pFeatures, pClass));
 	}
 	
     /**

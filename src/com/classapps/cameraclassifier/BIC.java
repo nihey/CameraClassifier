@@ -1,7 +1,5 @@
 package com.classapps.cameraclassifier;
 
-import java.util.ArrayList;
-
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
@@ -165,7 +163,7 @@ public class BIC {
 		 *	- histograma ja alocado, com tamanho de duas vezes a quantidade de cor
 		 *	- quantidade de cores usadas na imagem 
 		 * No histograma, de 0 até (nColor -1) = Borda, de nColor até (2*nColor -1) = Interior */
-		public static void Hist(Mat I, ArrayList<Float> features, int nColor) {
+		public static void Hist(Mat I, float features[], int nColor) {
 			
 			Size imgSize = new Size(I.width(), I.height());
 
@@ -220,7 +218,7 @@ public class BIC {
 			
 			for (j = 0; j < 2*nColor ; j ++) {
 				
-				features.add(norm[j]);
+				features[j] = norm[j];
 			}
 		}
 }
