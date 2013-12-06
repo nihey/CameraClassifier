@@ -2,6 +2,7 @@ package com.classapps.cameraclassifier;
 
 import java.util.ArrayList;
 
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
@@ -12,8 +13,10 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.FileObserver;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
 /**
  * Serviço que roda em background e realiza a classificação
@@ -29,7 +32,11 @@ public class ClassifierService extends Service {
 	
 	private ArrayList<Element> mElements = new ArrayList<Element>();
 	
+	private CvKNearest mKNN = new CvKNearest();
+	
 	FileObserver mObserver;
+	
+	private Handler handler = new Handler();
 	
 	public static String mPWD = null; 
 
@@ -73,11 +80,24 @@ public class ClassifierService extends Service {
 						getApplication().startActivity(i);
 					}
 					else {
-						// Classify
-					}
-					for(int i = 0; i < mElements.size(); i++) {
 						
-						Log.i("ClassifierService:", "Element " + i + ": " + mElements.get(i).getElementClass());
+						final Mat test = new Mat(1, 64, CvType.CV_32F);
+						
+
+						for(int j = 0; j < 64; j++) {
+							
+							test.put(0, j, feat[j]);	
+						}
+
+						
+						Log.w("Classified", "Class: " + mKNN.find_nearest(test, 3, new Mat(), new Mat(), new Mat()));
+						
+						handler.post(new Runnable() {
+						    public void run() {
+						        Toast toast = Toast.makeText(ClassifierService.this, "Class: " + mKNN.find_nearest(test, 3, new Mat(), new Mat(), new Mat()), Toast.LENGTH_LONG);
+						        toast.show();
+						    }
+						 });
 					}
 				}
 			}
@@ -114,6 +134,31 @@ public class ClassifierService extends Service {
 	public void addElement(String pFile, float pFeatures[], int pClass) {
 		
 		mElements.add(new Element(pFile, pFeatures, pClass));
+		
+		if(mElements.size() == 5) {
+			Mat train = new Mat(5, 64, CvType.CV_32F);
+			Mat labels = new Mat(5, 1, CvType.CV_32F);
+			int i = 0;
+			for(Element elem: mElements) {
+				
+				for(int j = 0; j < 64; j++) {
+					
+					train.put(i, j, elem.mFeatures[j]);	
+				}
+				labels.put(i, 0, elem.mClass);
+				i++;
+			}
+			
+//			for(i = 0; i < 5; i++) {
+//				
+//				for(int j = 0; j < 64; j++) {
+//					Log.d("DATA", train.get(i, j)[0]+"");
+//				}
+//				Log.d("LABEL", labels.get(i, 0)[0]+"");
+//			}
+			
+			mKNN.train(train, labels);
+		}
 	}
 	
     /**
