@@ -1,22 +1,24 @@
 package com.classapps.cameraclassifier;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.ml.CvKNearest;
 
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.FileObserver;
 import android.os.IBinder;
 import android.util.Log;
+
+/**
+ * Serviço que roda em background e realiza a classificação
+ *
+ */
 
 public class ClassifierService extends Service {
 
@@ -33,37 +35,6 @@ public class ClassifierService extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		
-		ObjectInputStream ois = null;
-		
-		try {
-
-		    ois = new ObjectInputStream(openFileInput("features"));
-		    
-		    float val = ois.readFloat();
-		    
-		    while(val != -1) {
-				
-				Log.d("Feature ", "0: " + val);
-				val = ois.readFloat();
-			}
-		    ois.close();
-		    
-		} 
-		catch (Exception ex) {
-
-			ex.printStackTrace();
-		}
-		finally {
-			
-			try {
-				
-				ois.close();			
-			} catch (IOException e) {
-
-				e.printStackTrace();
-			}
-		}
 		
 		mPWD =  (String) intent.getExtras().get(MainActivity.CLASS_CHOSEN_DIR);
 		
@@ -93,13 +64,6 @@ public class ClassifierService extends Service {
 					
 					BIC.Hist(src, feat, 32);
 					
-					Log.d("Histogram", "is Done");
-					
-					for(int i = 0; i < mElements.size(); i++) {
-						
-						Log.i("ClassifierService:", "Element " + i + ": " + mElements.get(i).getElementClass());
-					}
-					
 					if(mElements.size() < 5) {
 					
 						Intent i = new Intent(getApplicationContext(), ConfirmActivity.class);
@@ -107,6 +71,13 @@ public class ClassifierService extends Service {
 						i.putExtra(EXTRA_FILE_NAME, file);
 						i.putExtra(EXTRA_FEATURES, feat);
 						getApplication().startActivity(i);
+					}
+					else {
+						// Classify
+					}
+					for(int i = 0; i < mElements.size(); i++) {
+						
+						Log.i("ClassifierService:", "Element " + i + ": " + mElements.get(i).getElementClass());
 					}
 				}
 			}
